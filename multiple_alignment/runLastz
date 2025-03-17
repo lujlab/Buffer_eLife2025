@@ -1,0 +1,13 @@
+#!/bin/csh -fe
+set T = $1
+set Q = $2
+set FT = $3
+set FQ = $4
+set tmpDir = ./scratch/tmp/${FT}
+mkdir -p raw psl ${tmpDir}
+twoBitToFa ${T} ${tmpDir}/${FT}.fa
+twoBitToFa ${Q} ${tmpDir}/${FQ}.fa
+~/lastz-distrib/bin/lastz_D ${tmpDir}/${FT}.fa     ${tmpDir}/${FQ}.fa     C=0 E=30 H=2000 K=2200 L=4000 M=0 O=400 Q=/gpfs2/liucl/lcl/analysis/uORF_gain_loss/species_27_maf/dm6_other_sim_genome/2.lastz/lastz_dm6_sim_score.q T=2 Y=3400     > raw/${FT}.${FQ}.lav
+lavToPsl raw/${FT}.${FQ}.lav stdout     | liftUp -type=.psl stdout target.lift error stdin     | liftUp -nohead -pslQ -type=.psl stdout query.lift error stdin 	| gzip -c > psl/${FT}.${FQ}.psl.gz
+rm -f ${tmpDir}/${FT}.fa ${tmpDir}/${FQ}.fa
+rmdir --ignore-fail-on-non-empty ${tmpDir}
